@@ -422,7 +422,7 @@ func (c *baseRPCClient) Block(ctx context.Context, height *int64) (*ctypes.Resul
 func (c *baseRPCClient) BlockByHash(ctx context.Context, hash []byte) (*ctypes.ResultBlock, error) {
 	result := new(ctypes.ResultBlock)
 	params := map[string]interface{}{
-		"hash": hash,
+		"hash": bytes.HexBytes(hash),
 	}
 	_, err := c.caller.Call(ctx, "block_by_hash", params, result)
 	if err != nil {
@@ -463,7 +463,7 @@ func (c *baseRPCClient) Commit(ctx context.Context, height *int64) (*ctypes.Resu
 func (c *baseRPCClient) Tx(ctx context.Context, hash []byte, prove bool) (*ctypes.ResultTx, error) {
 	result := new(ctypes.ResultTx)
 	params := map[string]interface{}{
-		"hash":  hash,
+		"hash":  bytes.HexBytes(hash),
 		"prove": prove,
 	}
 	_, err := c.caller.Call(ctx, "tx", params, result)
