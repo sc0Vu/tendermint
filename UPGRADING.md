@@ -102,11 +102,11 @@ will need to change to accommodate these changes. Most notably:
 
 Mark gRPC in the RPC layer as deprecated and to be removed in 0.36.
 
-The encoding of hash values in RPC methods (such as `tx` and
-`broadcast_tx_commit`) was made consistent between parameters and results,
-using hexadecimal digits to encode the hash values.  Scripts or programs that
-issue JSON requests to the HTTP RPC service may need to be updated to encode
-hash parameters as hexadecimal digits (to match the results) rather than
+The encoding of hash values as parameters to RPC methods (such as `tx` and
+`broadcast_tx_commit`) was made consistent how hashes are encoded in the
+results, using hexadecimal digits.  Scripts or programs that issue JSON
+requests to the HTTP RPC service may need to be updated to encode hash
+parameters as hexadecimal digits (to match the results) rather than
 base64. URL-based requests are not affected by this changed.
 
 ### Support for Custom Reactor and Mempool Implementations
@@ -117,7 +117,7 @@ used, the introduction of the prioritized mempool covers nearly all of
 the use cases for custom reactors. If you are currently running custom
 reactors and mempools and are having trouble seeing the migration path
 for your project please feel free to reach out to the Tendermint Core
-development team directly. 
+development team directly.
 
 ## v0.34.0
 
