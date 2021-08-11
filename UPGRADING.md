@@ -102,6 +102,13 @@ will need to change to accommodate these changes. Most notably:
 
 Mark gRPC in the RPC layer as deprecated and to be removed in 0.36.
 
+The encoding of hash values in RPC methods (such as `tx` and
+`broadcast_tx_commit`) was made consistent between parameters and results,
+using hexadecimal digits to encode the hash values.  Scripts or programs that
+issue JSON requests to the HTTP RPC service may need to be updated to encode
+hash parameters as hexadecimal digits (to match the results) rather than
+base64. URL-based requests are not affected by this changed.
+
 ### Support for Custom Reactor and Mempool Implementations
 
 The changes to p2p layer removed existing support for custom
