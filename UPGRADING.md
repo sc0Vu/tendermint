@@ -100,6 +100,8 @@ will need to change to accommodate these changes. Most notably:
 
 ### RPC changes
 
+#### gRPC Support
+
 Mark gRPC in the RPC layer as deprecated and to be removed in 0.36.
 
 The encoding of hash values as parameters to RPC methods (such as `tx` and
@@ -108,6 +110,19 @@ results, using hexadecimal digits.  Scripts or programs that issue JSON
 requests to the HTTP RPC service may need to be updated to encode hash
 parameters as hexadecimal digits (to match the results) rather than
 base64. URL-based requests are not affected by this changed.
+
+#### Peer Management Interface
+
+When running with the new P2P Layer, the methods `UnsafeDialSeeds` and
+`UnsafeDialPeers` RPC methods will always return an error. They are
+deprecated and will be removed in 0.36 when the legacy peer stack is
+removed.
+
+Additionally the format of the Peer list returned in the `NetInfo`
+method changes in this release to accommodate the different way that
+the new stack tracks data about peers. This change affects users of
+both stacks.
+
 
 ### Support for Custom Reactor and Mempool Implementations
 
