@@ -110,7 +110,6 @@ Friendly reminder: We have a [bug bounty program](https://hackerone.com/tendermi
 
 ### IMPROVEMENTS
 
-- [rpc] \#6825 Remove egregious INFO log from `ABCI#Query` RPC. (@alexanderbez)
 - [libs/log] Console log formatting changes as a result of \#6534 and \#6589. (@tychoish)
 - [statesync] \#6566 Allow state sync fetchers and request timeout to be configurable. (@alexanderbez)
 - [types] \#6478 Add `block_id` to `newblock` event (@jeebster)
@@ -162,5 +161,3 @@ Friendly reminder: We have a [bug bounty program](https://hackerone.com/tendermi
 - [statesync] \#6463 Adds Reverse Sync feature to fetch historical light blocks after state sync in order to verify any evidence (@cmwaters)
 - [fastsync] \#6590 Update the metrics during fast-sync (@JayT106)
 - [gitignore] \#6668 Fix gitignore of abci-cli (@tanyabouman)
-- [light] \#6687 Fix bug with incorrectly handled contexts in the light client (@cmwaters)
-- [privval] \#6748 Fix vote timestamp to prevent chain halt (@JayT106)
