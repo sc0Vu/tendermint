@@ -33,12 +33,22 @@ var (
 		"rocksdb":   10,
 		"cleveldb":  5,
 	}
-	nodeABCIProtocols    = uniformChoice{"unix", "tcp", "builtin", "grpc"}
-	nodePrivvalProtocols = uniformChoice{"file", "unix", "tcp", "grpc"}
+	nodeABCIProtocols = weightedChoice{
+		"builtin": 50,
+		"tcp":     20,
+		"grpc":    20,
+		"unix":    10,
+	}
+	nodePrivvalProtocols = weightedChoice{
+		"file": 50,
+		"grpc": 20,
+		"tcp":  20,
+		"unix": 10,
+	}
 	// FIXME: v2 disabled due to flake
 	nodeBlockSyncs        = uniformChoice{"v0"} // "v2"
 	nodeMempools          = uniformChoice{"v0", "v1"}
-	nodeStateSyncs        = uniformChoice{false, true}
+	nodeStateSyncs        = uniformChoice{e2e.StateSyncDisabled, e2e.StateSyncP2P, e2e.StateSyncRPC}
 	nodePersistIntervals  = uniformChoice{0, 1, 5}
 	nodeSnapshotIntervals = uniformChoice{0, 3}
 	nodeRetainBlocks      = uniformChoice{0, int(e2e.EvidenceAgeHeight), int(e2e.EvidenceAgeHeight) + 5}
@@ -277,15 +287,19 @@ func generateNode(
 		Mode:             string(mode),
 		StartAt:          startAt,
 		Database:         nodeDatabases.Choose(r),
-		ABCIProtocol:     nodeABCIProtocols.Choose(r).(string),
-		PrivvalProtocol:  nodePrivvalProtocols.Choose(r).(string),
+		ABCIProtocol:     nodeABCIProtocols.Choose(r),
+		PrivvalProtocol:  nodePrivvalProtocols.Choose(r),
 		BlockSync:        nodeBlockSyncs.Choose(r).(string),
 		Mempool:          nodeMempools.Choose(r).(string),
-		StateSync:        nodeStateSyncs.Choose(r).(bool) && startAt > 0,
+		StateSync:        e2e.StateSyncDisabled,
 		PersistInterval:  ptrUint64(uint64(nodePersistIntervals.Choose(r).(int))),
 		SnapshotInterval: uint64(nodeSnapshotIntervals.Choose(r).(int)),
 		RetainBlocks:     uint64(nodeRetainBlocks.Choose(r).(int)),
 		Perturb:          nodePerturbations.Choose(r),
+	}
+
+	if startAt > 0 {
+		node.StateSync = nodeStateSyncs.Choose(r).(string)
 	}
 
 	// If this node is forced to be an archive node, retain all blocks and
@@ -316,7 +330,7 @@ func generateNode(
 		}
 	}
 
-	if node.StateSync {
+	if node.StateSync != e2e.StateSyncDisabled {
 		node.BlockSync = "v0"
 	}
 

@@ -48,6 +48,7 @@ func Start(testnet *e2e.Testnet) error {
 		if _, err := waitForNode(node, 0, time.Minute); err != nil {
 			return err
 		}
+		node.HasStarted = true
 		logger.Info(fmt.Sprintf("Node %v up on http://127.0.0.1:%v", node.Name, node.ProxyPort))
 	}
 
@@ -64,16 +65,6 @@ func Start(testnet *e2e.Testnet) error {
 		return err
 	}
 
-	// Update any state sync nodes with a trusted height and hash
-	for _, node := range nodeQueue {
-		if node.StateSync || node.Mode == e2e.ModeLight {
-			err = UpdateConfigStateSync(node, block.Height, blockID.Hash.Bytes())
-			if err != nil {
-				return err
-			}
-		}
-	}
-
 	for _, node := range nodeQueue {
 		if node.StartAt > networkHeight {
 			// if we're starting a node that's ahead of
@@ -85,16 +76,19 @@ func Start(testnet *e2e.Testnet) error {
 
 			networkHeight = node.StartAt
 
-			logger.Info("Waiting for network to advance before starting catch up node",
-				"node", node.Name,
-				"height", networkHeight)
-
-			if _, _, err := waitForHeight(testnet, networkHeight); err != nil {
+			block, blockID, err = waitForHeight(testnet, networkHeight)
+			if err != nil {
 				return err
 			}
 		}
 
-		logger.Info("Starting catch up node", "node", node.Name, "height", node.StartAt)
+		// Update any state sync nodes with a trusted height and hash
+		if node.StateSync != e2e.StateSyncDisabled || node.Mode == e2e.ModeLight {
+			err = UpdateConfigStateSync(node, block.Height, blockID.Hash.Bytes())
+			if err != nil {
+				return err
+			}
+		}
 
 		if err := execCompose(testnet.Dir, "up", "-d", node.Name); err != nil {
 			return err
@@ -103,6 +97,7 @@ func Start(testnet *e2e.Testnet) error {
 		if err != nil {
 			return err
 		}
+		node.HasStarted = true
 		logger.Info(fmt.Sprintf("Node %v up on http://127.0.0.1:%v at height %v",
 			node.Name, node.ProxyPort, status.SyncInfo.LatestBlockHeight))
 	}
